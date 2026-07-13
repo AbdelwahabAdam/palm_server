@@ -7,7 +7,6 @@ pipeline {
     
     environment {
         DOCKER_USER = 'abdelwahabadam'
-        DOCKER_REPO = 'palms_repo'
         IMAGE_TAG = "${BUILD_NUMBER}"
         DOCKER_CREDENTIALS = credentials('docker-credentials')
     }
@@ -26,12 +25,12 @@ pipeline {
             steps {
                 echo "Building Docker images..."
                 sh '''
-                    docker build -t ${DOCKER_USER}/${DOCKER_REPO}/palm-backend:${IMAGE_TAG} ./backend
-                    docker build -t ${DOCKER_USER}/${DOCKER_REPO}/palm-frontend:${IMAGE_TAG} ./frontend
+                    docker build -t ${DOCKER_USER}/palm-backend:${IMAGE_TAG} ./backend
+                    docker build -t ${DOCKER_USER}/palm-frontend:${IMAGE_TAG} ./frontend
                     
                     # Also tag as 'latest'
-                    docker tag ${DOCKER_USER}/${DOCKER_REPO}/palm-backend:${IMAGE_TAG} ${DOCKER_USER}/${DOCKER_REPO}/palm-backend:latest
-                    docker tag ${DOCKER_USER}/${DOCKER_REPO}/palm-frontend:${IMAGE_TAG} ${DOCKER_USER}/${DOCKER_REPO}/palm-frontend:latest
+                    docker tag ${DOCKER_USER}/palm-backend:${IMAGE_TAG} ${DOCKER_USER}/palm-backend:latest
+                    docker tag ${DOCKER_USER}/palm-frontend:${IMAGE_TAG} ${DOCKER_USER}/palm-frontend:latest
                 '''
             }
         }
@@ -47,12 +46,12 @@ pipeline {
             steps {
                 echo "Pushing Docker images to registry..."
                 sh '''
-                    docker push ${DOCKER_USER}/${DOCKER_REPO}/palm-backend:${IMAGE_TAG}
-                    docker push ${DOCKER_USER}/${DOCKER_REPO}/palm-frontend:${IMAGE_TAG}
+                    docker push ${DOCKER_USER}/palm-backend:${IMAGE_TAG}
+                    docker push ${DOCKER_USER}/palm-frontend:${IMAGE_TAG}
                     
                     # Push 'latest' tags
-                    docker push ${DOCKER_USER}/${DOCKER_REPO}/palm-backend:latest
-                    docker push ${DOCKER_USER}/${DOCKER_REPO}/palm-frontend:latest
+                    docker push ${DOCKER_USER}/palm-backend:latest
+                    docker push ${DOCKER_USER}/palm-frontend:latest
                 '''
             }
         }
