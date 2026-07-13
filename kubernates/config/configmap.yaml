@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: palm-config
+  namespace: palm-app
+data:
+  POSTGRES_USER: palmuser
+  POSTGRES_DB: palmdb
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: "5432"
+  AWS_REGION: us-east-1
+  SMTP_PORT: "587"
+  SMTP_USE_TLS: "true"
+  FRONTEND_URL: http://localhost
+  UPLOAD_DIR: /app/uploads

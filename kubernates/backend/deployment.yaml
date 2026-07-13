@@ -1,0 +1,138 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: palm-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: abdelwahabadam/palms_repo:palm-backend-v1.0.0
+          imagePullPolicy: Always
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: palm-secrets
+                  key: DATABASE_URL
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: palm-secrets
+                  key: SECRET_KEY
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: palm-config
+                  key: POSTGRES_USER
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: palm-config
+                  key: POSTGRES_HOST
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: palm-config
+                  key: POSTGRES_PORT
+            - name: AWS_REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: palm-config
+                  key: AWS_REGION
+            - name: SMTP_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: palm-config
+                  key: SMTP_PORT
+            - name: SMTP_USE_TLS
+              valueFrom:
+                configMapKeyRef:
+                  name: palm-config
+                  key: SMTP_USE_TLS
+            - name: FRONTEND_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: palm-config
+                  key: FRONTEND_URL
+            - name: UPLOAD_DIR
+              valueFrom:
+                configMapKeyRef:
+                  name: palm-config
+                  key: UPLOAD_DIR
+            # Optional AWS/SMTP secrets - uncomment if needed
+            # - name: S3_BUCKET
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: palm-secrets
+            #       key: S3_BUCKET
+            # - name: AWS_ACCESS_KEY_ID
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: palm-secrets
+            #       key: AWS_ACCESS_KEY_ID
+            # - name: AWS_SECRET_ACCESS_KEY
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: palm-secrets
+            #       key: AWS_SECRET_ACCESS_KEY
+            # - name: SMTP_HOST
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: palm-secrets
+            #       key: SMTP_HOST
+            # - name: SMTP_USER
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: palm-secrets
+            #       key: SMTP_USER
+            # - name: SMTP_PASSWORD
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: palm-secrets
+            #       key: SMTP_PASSWORD
+            # - name: SMTP_FROM
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: palm-secrets
+            #       key: SMTP_FROM
+          ports:
+            - containerPort: 6543
+          volumeMounts:
+            - name: palm-uploads
+              mountPath: /app/uploads
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 6543
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 6543
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 3
+      volumes:
+        - name: palm-uploads
+          persistentVolumeClaim:
+            claimName: palm-uploads
